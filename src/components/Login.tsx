@@ -2,13 +2,19 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { login } from "../redux/slice/loginSlice";
+import type { AppDispatch, RootState } from "../redux/store"
+
+interface FormType {
+    username: string ,
+    password: string
+}
 
 const Login = () => {
-    const [formData, setFormData] = useState({ username: "", password: "" })
+    const [formData, setFormData] = useState<FormType>({ username: "emilys", password: "emilyspass" });
     let navigate = useNavigate();
-    const { loading } = useSelector((state: any) => state.login);
-    const [error, setError] = useState({})
-    const dispatch = useDispatch();
+    const { loading } = useSelector((state: RootState) => state.login);
+    const [error, setError] = useState<FormType>({})
+    const dispatch = useDispatch<AppDispatch>();
 
     function validation() {
         let isValid = true;
@@ -23,7 +29,7 @@ const Login = () => {
         return isValid;
     }
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }))
 
@@ -45,6 +51,7 @@ const Login = () => {
 
         } catch (error) {
             console.error("Login failed:", error);
+            alert("Login failed. Please check your credentials and try again.");
         }
 
     }

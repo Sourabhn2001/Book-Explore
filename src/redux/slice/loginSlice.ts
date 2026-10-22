@@ -7,6 +7,9 @@ export const login = createAsyncThunk(
     'login',
     async (data) => {
         const response = await axios.post(`${BASE_URL}/login`, data);
+        const token = response.data.accessToken
+        localStorage.setItem("token", token)
+        localStorage.setItem("user", JSON.stringify(response.data))
         return response.data;
     }
 );
@@ -19,7 +22,12 @@ const loginSlice = createSlice({
         loading: false,
     },
     reducers: {
-          logout: (state) => {
+        loginSuccess: (state, action) => {
+            state.isLoggedIn = true;
+            state.user = action.payload;
+            state.loading = false;
+        },
+        logout: (state) => {
             state.isLoggedIn = false;
             state.user = null;
             state.loading = false;
@@ -46,5 +54,5 @@ const loginSlice = createSlice({
 
 });
 
-export const { logout } = loginSlice.actions;
+export const { loginSuccess , logout } = loginSlice.actions;
 export default loginSlice.reducer;

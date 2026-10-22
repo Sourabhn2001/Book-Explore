@@ -2,13 +2,16 @@ import { useEffect, useState } from "react"
 import { searchApi } from "../api/searchAPI.js"
 import { useSearchParams } from "react-router";
 import BooksCard from "./BooksCard.js";
+import { useSelector } from "react-redux";
 
 
 const Home = ({ handleSetCard, setLoading, bookData, loading }: { handleSetCard: (data: any[]) => void; setLoading: (loading: boolean) => void; bookData: any[]; loading: boolean }) => {
     const [searchBook, setSearchBook] = useState("")
+    const [page, setPage] = useState(1)
     const [totalResults, setTotalResults] = useState(0)
     const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('query') || '';
+    const { favbooks } = useSelector((state) => state.favorites)
 
     const [useDebounceSearch, setUseDebounceSearch] = useState("")
 
@@ -32,11 +35,11 @@ const Home = ({ handleSetCard, setLoading, bookData, loading }: { handleSetCard:
             }
             return prev;
         });
-        // setSearchParams({ query: value });
         setSearchBook(value)
     }
 
     useEffect(() => {
+
         if (searchQuery) {
             setSearchBook(searchQuery);
         } else {
@@ -49,10 +52,11 @@ const Home = ({ handleSetCard, setLoading, bookData, loading }: { handleSetCard:
 
     }, [searchQuery]);
 
+
     useEffect(() => {
-        const searchBookApi = async (query: string) => {
+        const searchBookApi = async (query: string, page: number) => {
             try {
-                const res = await searchApi(query)
+                const res = await searchApi({ query, page })
                 const data = res.docs;
                 handleSetCard(data)
                 setTotalResults(data.length)
@@ -66,17 +70,17 @@ const Home = ({ handleSetCard, setLoading, bookData, loading }: { handleSetCard:
             }
         }
 
-        if (useDebounceSearch.length > 3) {
-            searchBookApi(useDebounceSearch)
+        if (useDebounceSearch.length > 3 && page > 0) {
+            searchBookApi(useDebounceSearch, page)
             setLoading(true)
         }
 
-        if (useDebounceSearch.length < 3 && useDebounceSearch.length > 0) {
+        if ((useDebounceSearch.length < 3 && useDebounceSearch.length > 0) || (searchQuery.length == 0 && useDebounceSearch.length == 0)) {
             handleSetCard([])
             setTotalResults(0)
         }
 
-    }, [useDebounceSearch])
+    }, [useDebounceSearch, page])
 
     const handleReset = () => {
         setSearchBook("")
@@ -94,9 +98,17 @@ const Home = ({ handleSetCard, setLoading, bookData, loading }: { handleSetCard:
                     <button className="btn btn-primary ml-2 p-2 rounded border-2" onClick={handleReset}>Clear</button>
                     <h2> Results:{totalResults}</h2>
                 </div>
+                <div className="flex flex-row items-center gap-2 mt-2 justify-between w-full">
+                    <span className="font-bold">searching for: {searchBook}</span>
+                    <div>
+                        <span>current page : {page}</span>
+                        <button className="ml-2 p-1 rounded border-2" disabled={page <= 0} onClick={() => setPage((prev) => prev - 1)}>Back Page</button>
+                        <button className="ml-2 p-1 rounded border-2" onClick={() => setPage((prev) => prev + 1)}>Next Page</button>
+                    </div>
+                </div>
             </div>
 
-            <BooksCard data={bookData} loading={loading} isFavorite={false} />
+            <BooksCard data={bookData} loading={loading} isFavorite={(id) => favbooks.some((book) => book.id === id)} />
         </>
     )
 }

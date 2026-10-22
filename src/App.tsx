@@ -1,23 +1,33 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import './App.css'
 import BooksCard from './components/BooksCard'
 import Header from './components/Header'
 import { Route, Router, Routes } from 'react-router'
 import { Suspense, lazy } from 'react';
-import ProtectedRoute  from './protected-route/protected'
+import ProtectedRoute from './protected-route/protected'
+import { useDispatch } from 'react-redux'
 const HomeLazy = lazy(() => import('./components/Home'));
 const LoginLazy = lazy(() => import('./components/Login'));
 const FavoriteBooks = lazy(() => import('./components/Favorate'));
-
-// import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+const Account = lazy(() => import('./components/Account'));
+import { loginSuccess } from './redux/slice/loginSlice';
 
 function App() {
   const [bookData, setBookData] = useState([])
   const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
 
   const handleSetCard = async (data: any[]) => {
-    setBookData(data)
-  }
+    setBookData(data);
+  };
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("token")
+    if (isLoggedIn) {
+      const user = JSON.parse(localStorage.getItem("user") || '{}');
+      dispatch(loginSuccess(user));
+    }
+  }, [dispatch]);
 
 
   return (
@@ -30,6 +40,7 @@ function App() {
           <Route path='/login' element={<LoginLazy />} />
           <Route element={<ProtectedRoute />}>
             <Route path='/favorite-books' element={<FavoriteBooks />} />
+            <Route path='/auth/me' element={<Account />} />
           </Route>
         </Routes>
       </Suspense>

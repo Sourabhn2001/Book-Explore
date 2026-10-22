@@ -1,9 +1,11 @@
+import { useSelector } from "react-redux"
 import BooksCard from "./BooksCard"
 
 const FavoriteBooks = () => {
+    const { favbooks } = useSelector((state) => state.favorites);
     return (
         <div>
-            <BooksCard data={[]} loading={false} isFavorite={true} />
+            <BooksCard data={favbooks} loading={false} isFavoritePage={true} />
         </div>
     )
 }

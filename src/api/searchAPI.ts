@@ -1,9 +1,14 @@
 import axios from "axios";
-const BASE_URL = "https://openlibrary.org/search.json?q="
+const BASE_URL = "https://openlibrary.org/search.json"
 
-export const searchApi = async (query : string) => {
+export const searchApi = async ({ query, page }) => {
     try {
-        const res = await axios.get(`${BASE_URL}${query}`)
+        const params = {
+            q: query,
+            page,
+            limit: 10
+        }
+        const res = await axios.get(`${BASE_URL}`, { params })
         return res.data;
     } catch (error) {
         console.log("error", error)

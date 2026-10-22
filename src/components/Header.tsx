@@ -8,7 +8,6 @@ const Header = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handlelogout = () => {
-        debugger
         dispatch(logout());
         navigate("/")
     }
@@ -37,7 +36,7 @@ const Header = () => {
                         </Link>
                     }
                     {
-                        isLoggedIn && <Link to="/favorite-books" className="text-white hover:text-gray-300">
+                        isLoggedIn && <Link to="/auth/me" className="text-white hover:text-gray-300">
                             Account
                         </Link>
                     }
